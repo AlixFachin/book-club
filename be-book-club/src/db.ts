@@ -1,27 +1,14 @@
 import "reflect-metadata";
-import { Column, Connection, Entity, PrimaryGeneratedColumn, createConnection, getConnectionOptions  } from "typeorm";
+import {  Connection, createConnection, getConnectionOptions  } from "typeorm";
+import { entityList } from "./dbentities";
 
 export async function getDBConnection() : Promise<Connection> {
     const connectionOptions = await getConnectionOptions();
-    Object.assign(connectionOptions, { entities: [Book] } );
+    Object.assign(connectionOptions, { entities: entityList } );
     return await createConnection(connectionOptions);
 }
 
-@Entity()
-export class Book {
-    @PrimaryGeneratedColumn()
-    id: number;
-    @Column()
-    title: string;
-    @Column()
-    tags: string;
-    @Column()
-    genre: string;
-    @Column()
-    language: string;
-    @Column()
-    memo: string;
-}
+
 
 
 

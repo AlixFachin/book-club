@@ -18,9 +18,9 @@
     "typescript": "^4.3.5"
   },
   "scripts": {
-    "test": "mocha -r ts-node/register src/*.test.ts",
+    "test": "mocha -r ts-node/register src/tests/*.test.ts",
     "build": "tsc --project ./",
-    "startserver": "node ./outjs/main.js",
-    "hackserver": "nodemon ./outjs/main.js"
+    "startserver": "node ./outjs/server.js",
+    "hackserver": "nodemon ./outjs/server.js"
   }
 }
