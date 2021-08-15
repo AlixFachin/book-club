@@ -1,5 +1,5 @@
 
-import { Book } from "../dbentities";
+import { Book } from "../entitites/BookEntity";
 import { getDBConnection } from "../db";
 
 import { describe } from "mocha"
@@ -12,7 +12,7 @@ describe('Basic DB features', async () => {
     let DBConnection : Connection;
 
     before(async () => {
-        DBConnection = await getDBConnection();
+        DBConnection = await getDBConnection(true);
     });
 
     it("should be able to connect to DB", async () => {
@@ -26,15 +26,17 @@ describe('Basic DB features', async () => {
     // Can I delete one book?
     // Can I modify one book?
     
-    it("should be able to retrieve all the books", async () => {
+    it("should be able to do CRUD on books", async () => {
 
         const bookServices = new BookServices();
         expect(bookServices.getAll).not.to.be.undefined;
 
+        // RECEIVING ALL BOOKS
         const allBooks = await bookServices.getAll();
         expect(allBooks).to.be.an("array");
+        const initialLibLength = allBooks.length;
 
-
+        // ADDING ONE BOOK
         const newBook = new Book();
         newBook.genre = "policier";
         newBook.language = "FR";
@@ -49,6 +51,19 @@ describe('Basic DB features', async () => {
         expect(validatedNewBook.memo).to.equal(newBook.memo);
         expect(validatedNewBook.tags).to.equal(newBook.tags);
         expect(validatedNewBook.title).to.equal(newBook.title);
+
+        // Checking the new length of library size
+        let currentLibrarySize = (await bookServices.getAll()).length;
+        expect(currentLibrarySize).to.equal(initialLibLength+1);
+
+        // Deleting one object
+        const deleteResult = await bookServices.delete(validatedNewBook.id);
+        expect(deleteResult).not.to.be.undefined;
+        expect(deleteResult.affected).to.equal(1);
+        // Checking that the library size (nr of books) is back to the original one
+        currentLibrarySize = (await bookServices.getAll()).length;
+        expect(currentLibrarySize).to.equal(initialLibLength);
+        
 
     })
 

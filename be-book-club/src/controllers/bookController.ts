@@ -16,8 +16,13 @@ export class BookController {
         res.send("get All books!");
     }
 
+    public create = async (req: Request, res: Response) => {
+        res.send("create a new book!");
+    }
+
     public routes() {
         this.router.get('/', this.getAll);
+        this.router.post('/', this.create);
     }
 
 }
