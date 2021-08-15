@@ -21,7 +21,6 @@ class App {
 
         // Setup Middleware
         this.app.use(express.json());
-        console.log("-=-=-=-=-=-=-=-=-=-=-=-=-=- All setup!")
 
     }
     
