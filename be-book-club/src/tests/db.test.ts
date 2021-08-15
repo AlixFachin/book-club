@@ -56,14 +56,21 @@ describe('Basic DB features', async () => {
         let currentLibrarySize = (await bookServices.getAll()).length;
         expect(currentLibrarySize).to.equal(initialLibLength+1);
 
+        // Modifying one object
+        const modifiedBook = await bookServices.update(validatedNewBook.id, { genre: 'historic', title: 'Le Rouge et le Noir' })
+        expect(modifiedBook).not.to.be.undefined;
+        if (modifiedBook){
+            expect(modifiedBook.id).to.equal(validatedNewBook.id);
+            expect(modifiedBook.genre).to.equal('historic');
+            expect(modifiedBook.title).to.equal('Le Rouge et le Noir');
+        }
+
         // Deleting one object
         const deleteResult = await bookServices.delete(validatedNewBook.id);
         expect(deleteResult).not.to.be.undefined;
-        expect(deleteResult.affected).to.equal(1);
         // Checking that the library size (nr of books) is back to the original one
         currentLibrarySize = (await bookServices.getAll()).length;
         expect(currentLibrarySize).to.equal(initialLibLength);
-        
 
     })
 

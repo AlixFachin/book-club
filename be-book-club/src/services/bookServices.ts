@@ -22,9 +22,23 @@ export class BookServices {
         return validatedNewBook;
     }
 
-    public delete = async (deletedID: string) : Promise<DeleteResult> => {
-        const delResult = await this.bookRepository.delete(deletedID);
-        return delResult;
+    public update = async (bookID: string, updateDetails: Partial<Book>) => {
+        await this.bookRepository.update(bookID, updateDetails );
+        return this.bookRepository.findOne(bookID);
+    }
+
+    public delete = async (deletedID: string) : Promise<Book | undefined> => {
+        const toBeDeleted = await this.bookRepository.findOne(deletedID);
+        if (toBeDeleted) {
+            const delResult = await this.bookRepository.delete(deletedID);
+            if (delResult.affected && delResult.affected === 1) {
+                return toBeDeleted;
+            } else {
+                return undefined;
+            }
+        } else {
+            return undefined;
+        }
     }
 
 }
