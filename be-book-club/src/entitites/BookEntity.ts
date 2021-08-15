@@ -8,11 +8,11 @@ export class Book {
     @Column()
     title: string;
     @Column()
-    tags: string;
-    @Column()
-    genre: string;
-    @Column()
     language: string;
-    @Column()
-    memo: string;
+    @Column({nullable: true})
+    tags?: string;
+    @Column({nullable: true})
+    genre?: string;
+    @Column({nullable: true})
+    memo?: string;
 }

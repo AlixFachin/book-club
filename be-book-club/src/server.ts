@@ -1,21 +1,50 @@
-import express, {Request, Response} from "express";
+import express, {Application, json, Request, Response} from "express";
 
 // Configurations and .env files
 import { config } from "dotenv";
 import { resolve } from "path";
-config({ path: resolve(__dirname, "../../.env") } );
+import { BookController } from "./controllers/bookController";
 
-const app = express();
-function setupRoutes(): void {
+
+class App {
+
+    private readonly PORT_DEFAULT = 1111;
+    public readonly app: Application;
+    public readonly port: number;
+    private bookController: BookController;
+
+    constructor() {
+        config({ path: resolve(__dirname, "../../.env") } );
+        this.app = express();        
+        this.setupRoutes();
+        this.port = Number(process.env.PORT || this.PORT_DEFAULT);
+
+        // Setup Middleware
+        this.app.use(express.json());
+        console.log("-=-=-=-=-=-=-=-=-=-=-=-=-=- All setup!")
+
+    }
     
-    app.get('/', (req: Request, res: Response) => {
-        res.send("Well done!");
-    })
+    private setupRoutes(): void {
+        this.app.get('/', (req: Request, res: Response) => {
+            res.send("Welcome to the homepage...");
+        })
+        // REST API Endpoints
+        this.bookController = new BookController();
+        this.app.use('/api/v1/books/', this.bookController.router);
+    }
+
+    public start(): void {
+        this.app.listen(this.port, () => {
+            console.log(`Application listening on port ${this.port}`)
+        } )
+    }
 }
 
-const PORT = process.env.PORT || 1111;
-setupRoutes();
+export function getDefaultApp() {
+    return new App();
+}
 
-app.listen(process.env.PORT, () => {
-    console.log(`Application listening on port ${PORT}`)
-} )
+export default App;
+
+

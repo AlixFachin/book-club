@@ -17,9 +17,15 @@ export class BookServices {
         return allBooks;
     }
 
-    public create = async (newBook: Book) : Promise<Book> => {
-        const validatedNewBook = await this.bookRepository.save(newBook);
-        return validatedNewBook;
+    public create = async (bookDetails: Omit<Book, "id">) : Promise<Book | undefined> => {
+        try {
+            let newBook = new Book();
+            newBook = { ...newBook, ...bookDetails};            
+            return await this.bookRepository.save(newBook);                        
+        } catch (error) {
+            // TODO => Catch the error message somewhere somehow
+            return undefined;
+        }
     }
 
     public update = async (bookID: string, updateDetails: Partial<Book>) => {

@@ -8,7 +8,7 @@ import { Connection } from "typeorm"
 
 import { BookServices } from "../services/bookServices"
 
-describe('Basic DB features', async () => {
+describe('Book CRUD Tests', async () => {
     let DBConnection : Connection;
 
     before(async () => {
@@ -45,12 +45,17 @@ describe('Basic DB features', async () => {
         newBook.title = "Arsene Lupin";
         
         const validatedNewBook = await bookServices.create(newBook);
-        expect(validatedNewBook.id).not.to.be.undefined;
-        expect(validatedNewBook.genre).to.equal(newBook.genre);
-        expect(validatedNewBook.language).to.equal(newBook.language);
-        expect(validatedNewBook.memo).to.equal(newBook.memo);
-        expect(validatedNewBook.tags).to.equal(newBook.tags);
-        expect(validatedNewBook.title).to.equal(newBook.title);
+        expect(validatedNewBook).not.to.be.undefined;
+        if (validatedNewBook){
+            expect(validatedNewBook.id).not.to.be.undefined;
+            expect(validatedNewBook.genre).to.equal(newBook.genre);
+            expect(validatedNewBook.language).to.equal(newBook.language);
+            expect(validatedNewBook.memo).to.equal(newBook.memo);
+            expect(validatedNewBook.tags).to.equal(newBook.tags);
+            expect(validatedNewBook.title).to.equal(newBook.title);
+        } else {
+            return;
+        }
 
         // Checking the new length of library size
         let currentLibrarySize = (await bookServices.getAll()).length;
