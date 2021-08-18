@@ -44,11 +44,16 @@ describe('Routes API Test', async () => {
             const allBooks = res.body;
             const firstBook = allBooks[0];
 
+            // First case - everything goes well
             res = await chai.request(server.app).get(`/api/v1/books/${firstBook.id}`);
             expect(res).to.have.status(200);
             const returnedBook = res.body;
             expect(returnedBook.id).to.be.not.null;
             expect(returnedBook.id).to.equal(firstBook.id);
+
+            // Error catch
+            res = await chai.request(server.app).get(`/api/v1/books/gluglu1234`);
+            expect(res).to.have.status(404);
 
         });
 

@@ -17,10 +17,20 @@ export class BookServices {
         return allBooks;
     }
 
+    public getOne = async (bookId: string) => {
+        try{
+            const requestedBook = await this.bookRepository.findOne(bookId);
+            return requestedBook;
+        } catch(err) {
+            return undefined
+        }
+    }
+
     public create = async (bookDetails: Omit<Book, "id">) : Promise<Book | undefined> => {
         try {
             let newBook = new Book();
-            newBook = { ...newBook, ...bookDetails};            
+            newBook = { ...newBook, ...bookDetails};
+            console.log(`CREATION -> newBook = ${JSON.stringify(bookDetails)}`)            
             return await this.bookRepository.save(newBook);                        
         } catch (error) {
             // TODO => Catch the error message somewhere somehow

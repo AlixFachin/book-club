@@ -26,6 +26,20 @@ export class BookController {
         }
     }
 
+    public getOne = async ( req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { bookId } = req.params;
+            const queriedBook = await this.bookServices.getOne(bookId);
+            if (!queriedBook) {
+                res.status(404).end();
+            } else {
+                res.status(200).send(queriedBook);
+            }
+        } catch(err) {
+            next(err);
+        }
+    }
+
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const bodyBook = req['body'] as Book;
@@ -74,6 +88,7 @@ export class BookController {
     public routes() {
         this.router.get('/', this.getAll);
         this.router.post('/', this.create);
+        this.router.get('/:bookId', this.getOne);
         this.router.patch('/:bookId', this.update);
         this.router.delete('/:bookId', this.delete);
     }
