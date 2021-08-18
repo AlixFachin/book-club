@@ -1,0 +1,20 @@
+{
+    "booksList": [
+        {
+            "title":"Sherlock Holmes",
+            "language":"en",
+            "tags":"detective, classic",
+            "genre":"detective",
+            "memo":"This novel was written by a real detective."
+        },
+        {
+            "title":"The Order of Time",
+            "language":"en",
+            "tags":"non-fiction, physics",
+            "genre":"science",
+            "memo":"Written by the great Carlo Rovelli."
+        }
+
+    ]
+
+}

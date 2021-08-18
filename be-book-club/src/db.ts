@@ -1,8 +1,12 @@
 import "reflect-metadata";
-import {  Connection, createConnection, getConnectionOptions, ConnectionOptions, Entity, EntitySchema  } from "typeorm";
+import {  Connection, createConnection, getConnectionOptions, ConnectionOptions, getConnection } from "typeorm";
 import { Book } from "./entitites/BookEntity";
 
 type writeableConnectionOptions = { -readonly [ P in keyof ConnectionOptions ]: ConnectionOptions[P ] };
+
+interface SeedData {
+    booksList: Partial<Book>[],
+}
 
 export async function getDBConnection(testMode?: boolean) : Promise<Connection> {
     const connectionOptions = await getConnectionOptions();
@@ -18,7 +22,17 @@ export async function getDBConnection(testMode?: boolean) : Promise<Connection> 
     return await createConnection(connectionOptions);
 }
 
+export async function seedDBWithData(data: SeedData) {
 
+    const bookRepo = getConnection().getRepository(Book);
+
+    await bookRepo.clear();
+    for (let bookData of data.booksList) {
+        let newBook = bookRepo.create(bookData);
+        await bookRepo.save(newBook);
+    }
+
+}
 
 
 

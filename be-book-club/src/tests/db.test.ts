@@ -1,12 +1,14 @@
 
 import { Book } from "../entitites/BookEntity";
-import { getDBConnection } from "../db";
+import { getDBConnection, seedDBWithData } from "../db";
 
 import { describe } from "mocha"
 import { expect } from "chai"
 import { Connection } from "typeorm"
 
 import { BookServices } from "../services/bookServices"
+
+import data from "./testdata.json" ;
 
 describe('Book CRUD Tests', async () => {
     let DBConnection : Connection;
@@ -19,13 +21,21 @@ describe('Book CRUD Tests', async () => {
         expect(DBConnection).to.not.be.undefined;
     });
     
+    it("should have the test seeding function ready", async () => {
+        await seedDBWithData(data);
+
+        const bookLibrary = await DBConnection.getRepository(Book).find()
+        expect(bookLibrary.length).to.equal(2);
+
+    });
+
     // TESTS
     // Can I get all the books?
     // Can I get one book with the bookID?
     // Can I add one book?
     // Can I delete one book?
     // Can I modify one book?
-    
+
     it("should be able to do CRUD on books", async () => {
 
         const bookServices = new BookServices();
@@ -78,8 +88,6 @@ describe('Book CRUD Tests', async () => {
         expect(currentLibrarySize).to.equal(initialLibLength);
 
     })
-
-
 
 
 })

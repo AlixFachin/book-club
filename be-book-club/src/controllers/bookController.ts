@@ -31,7 +31,7 @@ export class BookController {
             const bodyBook = req['body'] as Book;
             const newBook = await this.bookServices.create(bodyBook);
             if (newBook) {
-                res.send(newBook);
+                res.status(201).send(newBook);
             } else {
                 res.status(400).end();
             }
