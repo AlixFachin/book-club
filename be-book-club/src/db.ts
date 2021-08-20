@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {  Connection, createConnection, getConnectionOptions, ConnectionOptions, getConnection } from "typeorm";
-import { Book } from "./entitites/BookEntity";
+import { Book } from "./Entities";
 
 type writeableConnectionOptions = { -readonly [ P in keyof ConnectionOptions ]: ConnectionOptions[P ] };
 

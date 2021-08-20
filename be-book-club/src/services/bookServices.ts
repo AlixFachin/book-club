@@ -1,9 +1,8 @@
 // bookServices
 // This class will define everything related with the 
 
-import { DeleteResult, getConnection } from "typeorm";
-import { BookRepository } from "../repositories/bookRepository";
-import { Book } from "../entitites/BookEntity";
+import { getConnection } from "typeorm";
+import { Book, BookRepository } from "../Entities";
 
 export class BookServices {
     private bookRepository: BookRepository;
@@ -30,7 +29,6 @@ export class BookServices {
         try {
             let newBook = new Book();
             newBook = { ...newBook, ...bookDetails};
-            console.log(`CREATION -> newBook = ${JSON.stringify(bookDetails)}`)            
             return await this.bookRepository.save(newBook);                        
         } catch (error) {
             // TODO => Catch the error message somewhere somehow
@@ -39,8 +37,14 @@ export class BookServices {
     }
 
     public update = async (bookID: string, updateDetails: Partial<Book>) => {
-        await this.bookRepository.update(bookID, updateDetails );
-        return this.bookRepository.findOne(bookID);
+        console.log(`Trying to update the book ${bookID} with details ${JSON.stringify(updateDetails)}`);
+        try { 
+            await this.bookRepository.update(bookID, updateDetails);
+            const modifiedBook  = await this.bookRepository.findOne(bookID);
+            return modifiedBook;
+        } catch (err) {
+            return undefined;
+        }
     }
 
     public delete = async (deletedID: string) : Promise<Book | undefined> => {

@@ -3,7 +3,7 @@
 // Contains routers and points to database interface
 
 import express, { Router, Response, Request, NextFunction } from "express";
-import { Book } from "../entitites/BookEntity";
+import { Book } from "../Entities";
 import { BookServices } from "../services/bookServices";
 
 export class BookController {
@@ -57,15 +57,16 @@ export class BookController {
     public update = async (req: Request, res: Response, next: NextFunction) => {
         const { bookId } = req.params;
         const newBookDetails = req.body;
+        console.log(`Controller trying to modify the record ${bookId} with details ${JSON.stringify(newBookDetails)}`)
         try {
             const updatedBook = await this.bookServices.update(bookId, newBookDetails);
             if (updatedBook) {
                 res.status(201).send(updatedBook);
             } else {
-                res.status(400);
+                res.status(400).end();
             }
         } catch(err) {  
-            res.status(500);
+            res.status(500).end();
             next(err);
         }
     }

@@ -1,5 +1,5 @@
 
-import { Book } from "../entitites/BookEntity";
+import { Book } from "../Entities";
 import { getDBConnection, seedDBWithData } from "../db";
 
 import { describe } from "mocha"

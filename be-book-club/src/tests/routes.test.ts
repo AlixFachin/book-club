@@ -1,4 +1,3 @@
-import { Book } from "../entitites/BookEntity";
 import { getDBConnection, seedDBWithData} from "../db";
 import { Connection, getConnection } from "typeorm"
 import App from "../server";
@@ -81,16 +80,21 @@ describe('Routes API Test', async () => {
 
         });
 
-        xit ("Should have a PATCH access point", async () => {
+        it ("Should have a PATCH access point", async () => {
             let res = await chai.request(server.app).get("/api/v1/books");
             let allBooks = res.body;
             let firstBook = allBooks[0];
             
-            // res = await chai.request(server.app)
-            //     .patch(`/api/v1/books/${firstBook.id}`)
-            //     .send({
-            //         "title":"Norse!",
-            //     })
+            res = await chai.request(server.app).patch(`/api/v1/books/${firstBook.id}`).send({
+                    "title":"Norse!",
+                });
+            
+            expect(res).to.have.status(201);
+            
+            res = await chai.request(server.app)
+                .get(`/api/v1/books/${firstBook.id}`);
+            
+            expect(res.body.title).to.equal("Norse!");
             
         })
 

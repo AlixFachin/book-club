@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Column,  Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column,  Entity, PrimaryGeneratedColumn, EntityRepository, Repository } from "typeorm";
 
 @Entity()
 export class Book {
@@ -15,4 +15,8 @@ export class Book {
     genre?: string;
     @Column({nullable: true})
     memo?: string;
+}
+
+@EntityRepository(Book)
+export class BookRepository extends Repository<Book> {
 }
