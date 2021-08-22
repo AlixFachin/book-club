@@ -168,8 +168,27 @@ describe('Profiles/Users API Test', async () => {
         expect(fullName).to.equal("Luke Skywalker");
         expect(postCode).to.equal("123-4567");
 
+        res = await chai.request(server.app).get('/api/v1/users');
+        expect(res.body.length).to.equal(3);
 
-    })
+        res = await chai.request(server.app).post('/api/v1/users').send({});
+        expect(res).to.have.status(400);
+
+    });
+
+    it("Should be able to DELETE one user", async () => {
+        let res = await chai.request(server.app).get('/api/v1/users');
+        const allUsers = res.body;
+        let nrUsers = allUsers.length;
+        let lastUser = allUsers[nrUsers-1];
+        res = await chai.request(server.app)
+            .delete(`/api/v1/users/${lastUser.id}`);
+        expect(res).to.have.status(201);
+        expect(res.body.id).to.equal(lastUser.id);
+        res = await chai.request(server.app).get('/api/v1/users');
+        expect(res.body.length).to.equal(nrUsers - 1);
+
+    });
 
 
 })

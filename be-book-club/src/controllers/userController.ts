@@ -53,10 +53,27 @@ export class UserController {
         }
     }
 
+    public delete = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { userId } = req.params;
+            const deletedUser = await this.userServices.delete(userId);
+            if (deletedUser) {
+                res.status(201).send(deletedUser);
+            } else {
+                res.status(400).end();
+            }
+        } catch(err) {
+            next(err);
+        }
+
+    }
+
+
     public registerRoutes() : void {
         this.router.get('/', this.getAll);
-        this.router.get('/:userId', this.getOne);
         this.router.post('/', this.create);
+        this.router.get('/:userId', this.getOne);
+        this.router.delete('/:userId', this.delete);
     }
 
 }
