@@ -14,7 +14,7 @@ export class BookController {
         this.router = Router();
         this.router.use(express.json());
         this.bookServices = new BookServices();
-        this.routes();
+        this.registerRoutes();
     }
 
     public getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -85,7 +85,7 @@ export class BookController {
         }
     }
 
-    public routes() {
+    public registerRoutes() {
         this.router.get('/', this.getAll);
         this.router.post('/', this.create);
         this.router.get('/:bookId', this.getOne);

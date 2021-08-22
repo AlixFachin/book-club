@@ -26,6 +26,10 @@ describe('Routes API Test', async () => {
         await seedDBWithData(data);
     })
 
+    after(async () => {
+        server.stop();
+    });
+
    describe("Book Entity Endpoints", () => {
 
         it("Should have a GET access point for all", async () => {
@@ -56,7 +60,7 @@ describe('Routes API Test', async () => {
 
         });
 
-        it("Should have a PUT access point", async () => {
+        it("Should have a POST access point", async () => {
 
             let res = await chai.request(server.app)
                 .post("/api/v1/books")
@@ -99,5 +103,73 @@ describe('Routes API Test', async () => {
         })
 
    })
+
+});
+
+describe('Profiles/Users API Test', async () => {
+    let DBConnection: Connection;
+    let server : App; 
+
+    
+    before(async () => {
+        DBConnection = getConnection();
+        if (!DBConnection) {
+            DBConnection = await getDBConnection(true);
+        }   
+
+        await seedDBWithData(data);
+        server = new App();
+        server.start();
+
+    });
+
+    after(async () => {
+        if (server) {
+            server.stop();
+        }
+    })
+
+    it("Should support GET ALL functions", async () => {
+        const res = await chai.request(server.app).get("/api/v1/users");
+        expect(res).to.have.status(200);
+        const allUsers = res.body;
+        expect(allUsers).to.be.an('array');
+        expect(allUsers.length).to.equal(2);
+        expect(allUsers[0].fullName).to.equal('John Doe');
+        expect(allUsers[1].fullName).to.equal('Roberto Tanaka');
+    });
+
+    it("Should support GET ONE function", async () => {
+        let res = await chai.request(server.app).get("/api/v1/users");
+        const allUsers = res.body;
+        const firstUser = allUsers[0];
+
+        res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}`);
+        expect(res).to.have.status(200);
+        const resUser = res.body;
+        expect(resUser).to.not.be.undefined;
+        expect(resUser.id).to.equal(firstUser.id);
+        expect(resUser.fullName).to.equal(firstUser.fullName);
+
+    });
+
+    it("Should support CREATE one user", async () => {
+        let res = await chai.request(server.app)
+            .post(`/api/v1/users`)
+            .send({
+                fullName: "Luke Skywalker",
+                postCode: "123-4567",
+                country: "Japan",
+                language: "en",
+            });
+        expect(res).to.not.be.undefined;
+        expect(res).to.have.status(201);
+        let { fullName, postCode } = res.body;
+        expect(fullName).to.equal("Luke Skywalker");
+        expect(postCode).to.equal("123-4567");
+
+
+    })
+
 
 })
