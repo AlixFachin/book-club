@@ -1,12 +1,13 @@
 
-import { Book } from "../Entities";
+import { Book, User } from "../Entities";
 import { getDBConnection, seedDBWithData } from "../db";
 
 import { describe } from "mocha"
 import { expect } from "chai"
-import { Connection } from "typeorm"
+import { Connection, getConnection } from "typeorm"
 
 import { BookServices } from "../services/bookServices"
+import { UserServices } from "../services/userServices";
 
 import data from "./testdata.json" ;
 
@@ -30,12 +31,7 @@ describe('Book CRUD Tests', async () => {
     });
 
     // TESTS
-    // Can I get all the books?
-    // Can I get one book with the bookID?
-    // Can I add one book?
-    // Can I delete one book?
-    // Can I modify one book?
-
+    
     it("should be able to do CRUD on books", async () => {
 
         const bookServices = new BookServices();
@@ -87,10 +83,52 @@ describe('Book CRUD Tests', async () => {
         currentLibrarySize = (await bookServices.getAll()).length;
         expect(currentLibrarySize).to.equal(initialLibLength);
 
-    })
+    });
 
+});
 
-})
+describe("Users CRUD Tests", async () => {
+    let DBConnection : Connection; 
+    let firstUser : User;
 
+    before(async () => {
+        DBConnection = getConnection();
+        if (!DBConnection) {
+            DBConnection = await getDBConnection(true);
+        }
+    });
+
+    it("should be able to perform CRUD on Users", async () => {
+        const userServices = new UserServices();
+        expect(userServices.getOne).not.to.be.undefined;
+
+        const users = await userServices.getAll();
+        expect(users).to.be.an('array');
+        expect(users.length).to.equal(2);
+
+        let firstUser = users[0];
+        
+        // Get One
+        let queriedUser = await userServices.getOne(firstUser.id);
+        expect(queriedUser).not.to.be.undefined;
+        expect(queriedUser?.id).to.equal(firstUser.id);
+
+        // Modify One
+        const newUser = await userServices.update(firstUser.id, { postCode: "123-456" });
+        expect(newUser).not.to.be.undefined;
+        expect(newUser?.id).to.equal(firstUser.id);
+        queriedUser = await userServices.getOne(firstUser.id);
+        expect(queriedUser?.postCode).to.equal("123-456");
+       
+        // Delete One
+        const deleteResult = await userServices.delete(firstUser.id);
+        expect(deleteResult).not.to.be.undefined;
+        expect(deleteResult?.id).to.equal(firstUser.id);
+        const updatedAllUserList = await userServices.getAll();
+        expect(updatedAllUserList.length).to.equal(1);
+
+    });
+
+});
 
 

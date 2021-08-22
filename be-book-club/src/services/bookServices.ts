@@ -37,7 +37,6 @@ export class BookServices {
     }
 
     public update = async (bookID: string, updateDetails: Partial<Book>) => {
-        console.log(`Trying to update the book ${bookID} with details ${JSON.stringify(updateDetails)}`);
         try { 
             await this.bookRepository.update(bookID, updateDetails);
             const modifiedBook  = await this.bookRepository.findOne(bookID);

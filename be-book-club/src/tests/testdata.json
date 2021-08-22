@@ -15,6 +15,20 @@
             "memo":"Written by the great Carlo Rovelli."
         }
 
+    ],
+    "usersList": [
+        {
+            "fullName": "John Doe",
+            "postCode": "023-1644",
+            "country": "Japan",
+            "language": "en"
+        },
+        {
+            "fullName": "Roberto Tanaka",
+            "postCode": "013-1248",
+            "country": "Japan",
+            "language": "en"
+        }
     ]
 
 }

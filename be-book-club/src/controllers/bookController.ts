@@ -57,7 +57,6 @@ export class BookController {
     public update = async (req: Request, res: Response, next: NextFunction) => {
         const { bookId } = req.params;
         const newBookDetails = req.body;
-        console.log(`Controller trying to modify the record ${bookId} with details ${JSON.stringify(newBookDetails)}`)
         try {
             const updatedBook = await this.bookServices.update(bookId, newBookDetails);
             if (updatedBook) {
