@@ -86,8 +86,12 @@ export class InventoryItem {
     id: string;
     @ManyToOne(() => User, user => user.inventory)
     owner: User;
+    @Column({ nullable: true})
+    ownerId: string; // need to add the foreign key as a column to enhance the search efficiency
     @ManyToOne(() => Book, book => book.instances)
     book: Book;
+    @Column({nullable: true})
+    bookId: string;
     @CreateDateColumn()
     createdDate: Date;
     @Column({
