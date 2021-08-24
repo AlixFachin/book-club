@@ -70,6 +70,16 @@ export class UserRepository extends Repository<User>{
 
 // Inventory -> Represents a physical book owned by a app user
 
+export enum BookVisibility {
+    PUBLIC = 'public',
+    PRIVATE = 'private'
+}
+
+export enum BookStatus {
+    AVAILABLE = 'avail',
+    AWAY = 'away' // cannot be booked (borrowed, held, ...)
+}
+
 @Entity({name:"Inventories"})
 export class Inventory {
     @PrimaryGeneratedColumn("uuid")
@@ -78,6 +88,20 @@ export class Inventory {
     owner: User;
     @ManyToOne(() => Book, book => book.instances)
     book: Book;
+    @CreateDateColumn()
+    createdDate: Date;
+    @Column({
+        type: "enum",
+        enum: BookVisibility,
+        default: BookVisibility.PUBLIC
+    })
+    visibility: BookVisibility;
+    @Column({
+        type: "enum",
+        enum: BookStatus,
+        default: BookStatus.AVAILABLE
+    })
+    status: BookStatus;
 }
 
 @EntityRepository(Inventory)

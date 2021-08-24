@@ -68,7 +68,6 @@ export class UserController {
 
     }
 
-
     public registerRoutes() : void {
         this.router.get('/', this.getAll);
         this.router.post('/', this.create);
