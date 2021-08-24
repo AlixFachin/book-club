@@ -29,11 +29,11 @@ export class Book {
     genre?: string;
     @Column({nullable: true})
     memo?: string;
-    @OneToMany(() => Inventory, inventory => inventory.book, {
+    @OneToMany(() => InventoryItem, inventory => inventory.book, {
         onDelete: "RESTRICT",
         cascade: false,
     })
-    instances: Inventory[];
+    instances: InventoryItem[];
 }
 
 @EntityRepository(Book)
@@ -56,11 +56,11 @@ export class User {
     language: string;
     @CreateDateColumn()
     createdDate: Date;
-    @OneToMany(()=>Inventory, inventory => inventory.owner, {
+    @OneToMany(()=>InventoryItem, inventory => inventory.owner, {
         onDelete: "RESTRICT",
         cascade: false,
     })
-    books: Inventory[];
+    inventory: InventoryItem[];
 }
 
 @EntityRepository(User)
@@ -81,10 +81,10 @@ export enum BookStatus {
 }
 
 @Entity({name:"Inventories"})
-export class Inventory {
+export class InventoryItem {
     @PrimaryGeneratedColumn("uuid")
     id: string;
-    @ManyToOne(() => User, user => user.books)
+    @ManyToOne(() => User, user => user.inventory)
     owner: User;
     @ManyToOne(() => Book, book => book.instances)
     book: Book;
@@ -104,7 +104,12 @@ export class Inventory {
     status: BookStatus;
 }
 
-@EntityRepository(Inventory)
-export class InventoryRepository extends Repository<Inventory> {
+export interface InventoryItemParam {
+    visibility?: BookVisibility;
+    status?: BookStatus;
+}
+
+@EntityRepository(InventoryItem)
+export class InventoryRepository extends Repository<InventoryItem> {
 
 }
