@@ -241,7 +241,46 @@ describe('Inventory Routes Test', async () => {
         expect(res.body.owner.id).to.equal(firstUser.id);
         expect(res.body.book.id).to.equal(firstBook.id);
 
+        // Impact on GET inventory
+        res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(1);
     });
+
+    it("should have a UPDATE inventory route", async () => {
+        const firstUser = allUsers[0];
+        
+        let res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        const firstInventoryItem = res.body[0];
+        expect(firstInventoryItem.visibility).to.equal(BookVisibility.PUBLIC);
+
+        res = await chai.request(server.app)
+            .patch(`/api/v1/users/${firstInventoryItem.ownerId}/books/${firstInventoryItem.bookId}`)
+            .send({ visibility: BookVisibility.PRIVATE });
+        expect(res).to.have.status(201);
+        const updatedInventoryItem = res.body;
+        expect(updatedInventoryItem.visibility).to.equal(BookVisibility.PRIVATE);
+
+    });
+
+    it("should have a DELETE inventory route", async () => {
+        const firstUser = allUsers[0];
+        
+        let res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        const firstInventoryItem = res.body[0];
+        const inventoryLength = res.body.length;
+
+        res = await chai.request(server.app).delete(`/api/v1/users/${firstInventoryItem.ownerId}/books/${firstInventoryItem.bookId}`);
+        expect(res).to.have.status(200);
+        const deletedInventoryItem = res.body;
+        expect(deletedInventoryItem).to.not.be.undefined;
+        expect(deletedInventoryItem.id).to.equal(firstInventoryItem.id);
+
+        res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        expect(res.body.length).to.equal(inventoryLength-1);
+
+    })
 
 
 });

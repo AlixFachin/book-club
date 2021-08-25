@@ -16,7 +16,8 @@ export class InventoryController {
     public registerRoutes = () => {
         this.router.get('/users/:userId/books', this.getAll);
         this.router.post('/users/:userId/books/:bookId', this.addBookToInventory);
-        
+        this.router.patch('/users/:userId/books/:bookId', this.editInventoryItem);
+        this.router.delete('/users/:userId/books/:bookId', this.deleteInventoryItem);
     }
 
     public getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -46,6 +47,37 @@ export class InventoryController {
                 res.status(400).end();
             }
         } catch (err) {
+            res.status(500);
+            next(err);
+        }
+    }
+
+    public editInventoryItem = async (req: Request, res: Response, next: NextFunction) => {
+        const { bookId, userId } = req.params;
+        const updateParameters = req.body;
+        try {
+            const updatedInventoryItem = await this.inventoryServices.editInventory(userId, bookId, updateParameters);
+            if (updatedInventoryItem) {
+                res.status(201).send(updatedInventoryItem);
+            } else {
+                res.status(400).end();
+            }
+        } catch(err) {
+            res.status(500);
+            next(err);
+        }
+    } 
+
+    public deleteInventoryItem = async(req: Request, res: Response, next: NextFunction) => {
+        const { bookId, userId } = req.params;
+        try {
+            const deletedInventoryItem = await this.inventoryServices.removeFromInventory(userId, bookId);
+            if (deletedInventoryItem) {
+                res.status(200).send(deletedInventoryItem);
+            } else {
+                res.status(400).end();
+            }
+        } catch(err) {
             res.status(500);
             next(err);
         }
