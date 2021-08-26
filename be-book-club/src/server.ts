@@ -6,6 +6,7 @@ import { resolve } from "path";
 import { BookController } from "./controllers/bookController";
 import { UserController } from "./controllers/userController";
 import { Server } from "http";
+import { InventoryController } from "./controllers/inventoryController";
 
 
 class App {
@@ -16,6 +17,7 @@ class App {
     public readonly port: number;
     private bookController: BookController;
     private userController: UserController;
+    private inventoryController: InventoryController;
 
     constructor() {
         config({ path: resolve(__dirname, "../../.env") } );
@@ -37,6 +39,8 @@ class App {
         this.app.use('/api/v1/books/', this.bookController.router);
         this.userController = new UserController();
         this.app.use('/api/v1/users/', this.userController.router);
+        this.inventoryController = new InventoryController();
+        this.app.use('/api/v1/', this.inventoryController.router);
     }
 
     public start(): void {

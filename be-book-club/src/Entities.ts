@@ -29,11 +29,11 @@ export class Book {
     genre?: string;
     @Column({nullable: true})
     memo?: string;
-    @OneToMany(() => Inventory, inventory => inventory.book, {
+    @OneToMany(() => InventoryItem, inventory => inventory.book, {
         onDelete: "RESTRICT",
         cascade: false,
     })
-    instances: Inventory[];
+    instances: InventoryItem[];
 }
 
 @EntityRepository(Book)
@@ -56,11 +56,11 @@ export class User {
     language: string;
     @CreateDateColumn()
     createdDate: Date;
-    @OneToMany(()=>Inventory, inventory => inventory.owner, {
+    @OneToMany(()=>InventoryItem, inventory => inventory.owner, {
         onDelete: "RESTRICT",
         cascade: false,
     })
-    books: Inventory[];
+    inventory: InventoryItem[];
 }
 
 @EntityRepository(User)
@@ -70,17 +70,50 @@ export class UserRepository extends Repository<User>{
 
 // Inventory -> Represents a physical book owned by a app user
 
-@Entity({name:"Inventories"})
-export class Inventory {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
-    @ManyToOne(() => User, user => user.books)
-    owner: User;
-    @ManyToOne(() => Book, book => book.instances)
-    book: Book;
+export enum BookVisibility {
+    PUBLIC = 'public',
+    PRIVATE = 'private'
 }
 
-@EntityRepository(Inventory)
-export class InventoryRepository extends Repository<Inventory> {
+export enum BookStatus {
+    AVAILABLE = 'avail',
+    AWAY = 'away' // cannot be booked (borrowed, held, ...)
+}
+
+@Entity({name:"Inventories"})
+export class InventoryItem {
+    @PrimaryGeneratedColumn("uuid")
+    id: string;
+    @ManyToOne(() => User, user => user.inventory)
+    owner: User;
+    @Column({ nullable: true})
+    ownerId: string; // need to add the foreign key as a column to enhance the search efficiency
+    @ManyToOne(() => Book, book => book.instances)
+    book: Book;
+    @Column({nullable: true})
+    bookId: string;
+    @CreateDateColumn()
+    createdDate: Date;
+    @Column({
+        type: "enum",
+        enum: BookVisibility,
+        default: BookVisibility.PUBLIC
+    })
+    visibility: BookVisibility;
+    @Column({
+        type: "enum",
+        enum: BookStatus,
+        default: BookStatus.AVAILABLE
+    })
+    status: BookStatus;
+}
+
+export interface InventoryItemParam {
+    visibility?: BookVisibility;
+    status?: BookStatus;
+}
+
+@EntityRepository(InventoryItem)
+export class InventoryRepository extends Repository<InventoryItem> {
 
 }

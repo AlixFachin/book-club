@@ -1,13 +1,14 @@
 
-import { Book, User } from "../Entities";
+import { Book, BookStatus, BookVisibility, User } from "../Entities";
 import { getDBConnection, seedDBWithData } from "../db";
 
 import { describe } from "mocha"
 import { expect } from "chai"
 import { Connection, getConnection } from "typeorm"
 
-import { BookServices } from "../services/bookServices"
+import { BookServices } from "../services/bookServices";
 import { UserServices } from "../services/userServices";
+import { InventoryServices } from "../services/inventoryServices";
 
 import data from "./testdata.json" ;
 
@@ -96,6 +97,7 @@ describe("Users CRUD Tests", async () => {
         if (!DBConnection) {
             DBConnection = await getDBConnection(true);
         }
+        await seedDBWithData(data);
     });
 
     it("should be able to perform CRUD on Users", async () => {
@@ -131,4 +133,87 @@ describe("Users CRUD Tests", async () => {
 
 });
 
+describe("Inventory CRUD Tests", async () => {
+    let DBConnection: Connection;
+    let bookServices: BookServices;
+    let userServices: UserServices;
+    let inventoryServices: InventoryServices;
+    let allBooks : Book[];
+    let allUsers : User[];
 
+    before(async () => {
+        DBConnection = getConnection();
+        if (!DBConnection) {
+            DBConnection = await getDBConnection(true);
+        }
+        await seedDBWithData(data);
+        
+        bookServices = new BookServices();
+        userServices = new UserServices();
+        inventoryServices = new InventoryServices();
+    
+        allBooks = await bookServices.getAll();
+        allUsers = await userServices.getAll();
+    });
+
+    it("should have a Inventory Setter", async () => {
+
+        const initialInventory = await inventoryServices.getInventory(allUsers[0].id);
+        expect(initialInventory).not.to.be.undefined;
+        expect(initialInventory).to.be.an('array');
+        expect(initialInventory?.length).to.equal(0);
+
+        const resInsert = await inventoryServices.addBookToInventory(
+                allUsers[0].id, 
+                allBooks[0].id, 
+                { 
+                    visibility: BookVisibility.PUBLIC, 
+                    status: BookStatus.AVAILABLE 
+                }
+            );
+        expect(resInsert).not.to.be.undefined;
+        expect(resInsert?.book.id).to.equal(allBooks[0].id);
+        expect(resInsert?.owner.id).to.equal(allUsers[0].id);
+        // Check creation
+        const newInventory = await inventoryServices.getInventory(allUsers[0].id);
+        expect(newInventory).to.be.an('array');
+        expect(newInventory?.length).to.equal(1);
+    });
+
+    it("should have inventory deletion", async () => {
+
+        const initialInventory = await inventoryServices.getInventory(allUsers[0].id);
+        expect(initialInventory?.length).to.equal(1);
+        if (initialInventory) {
+            const initialInventoryItem = initialInventory[0];
+            const deletedInventory = await inventoryServices.removeFromInventory(initialInventoryItem.ownerId, initialInventoryItem.bookId);
+            expect(deletedInventory).not.to.be.undefined;
+            expect(deletedInventory?.id).to.equal(initialInventoryItem.id)
+
+            const updatedInventory = await inventoryServices.getInventory(initialInventoryItem.ownerId);
+            expect(updatedInventory).not.to.be.undefined;
+            expect(updatedInventory?.length).to.equal(0);
+        }
+
+    });
+
+    it("should have update inventory Feature", async () => {
+
+        const newInventory = await inventoryServices.addBookToInventory(
+            allUsers[1].id, 
+            allBooks[1].id, 
+            { 
+                visibility: BookVisibility.PUBLIC, 
+                status: BookStatus.AVAILABLE 
+            }
+        );
+        
+        const editedInventory = await inventoryServices.editInventory(allUsers[1].id, allBooks[1].id, { status: BookStatus.AWAY });
+        expect(editedInventory).to.not.be.undefined;
+        expect(editedInventory?.id).to.equal(newInventory?.id);
+        expect(editedInventory?.status).to.equal(BookStatus.AWAY);
+
+    });
+
+
+})

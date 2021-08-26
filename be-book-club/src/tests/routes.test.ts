@@ -7,6 +7,7 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 
 import data from "./testdata.json";
+import { User, Book, InventoryItem, BookVisibility, BookStatus } from "../Entities";
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -191,4 +192,95 @@ describe('Profiles/Users API Test', async () => {
     });
 
 
-})
+});
+
+describe('Inventory Routes Test', async () => {
+    let DBConnection: Connection;
+    let server : App; 
+    let allUsers : User[];
+    let allBooks : Book[];
+
+    
+    before(async () => {
+        DBConnection = getConnection();
+        if (!DBConnection) {
+            DBConnection = await getDBConnection(true);
+        }   
+
+        await seedDBWithData(data);
+        server = new App();
+        server.start();
+
+        let res = await chai.request(server.app).get('/api/v1/users');
+        allUsers = res.body;
+        res = await chai.request(server.app).get('/api/v1/books');
+        allBooks = res.body;
+
+    });
+
+    it("should have a GET inventory route", async () => {
+        const firstUser = allUsers[0];
+
+        let res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(0);
+    });
+
+    it("should have a CREATE inventory route", async () => {
+        const firstUser = allUsers[0];
+        const firstBook = allBooks[0];
+
+        let res = await chai.request(server.app)
+            .post(`/api/v1/users/${firstUser.id}/books/${firstBook.id}`)
+            .send({ visibility: BookVisibility.PUBLIC, status: BookStatus.AVAILABLE } );
+        expect(res).to.have.status(201);
+        expect(res.body.id).to.not.be.undefined;
+        expect(res.body.visibility).to.equal(BookVisibility.PUBLIC);
+        expect(res.body.status).to.equal(BookStatus.AVAILABLE);
+        expect(res.body.owner.id).to.equal(firstUser.id);
+        expect(res.body.book.id).to.equal(firstBook.id);
+
+        // Impact on GET inventory
+        res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(1);
+    });
+
+    it("should have a UPDATE inventory route", async () => {
+        const firstUser = allUsers[0];
+        
+        let res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        const firstInventoryItem = res.body[0];
+        expect(firstInventoryItem.visibility).to.equal(BookVisibility.PUBLIC);
+
+        res = await chai.request(server.app)
+            .patch(`/api/v1/users/${firstInventoryItem.ownerId}/books/${firstInventoryItem.bookId}`)
+            .send({ visibility: BookVisibility.PRIVATE });
+        expect(res).to.have.status(201);
+        const updatedInventoryItem = res.body;
+        expect(updatedInventoryItem.visibility).to.equal(BookVisibility.PRIVATE);
+
+    });
+
+    it("should have a DELETE inventory route", async () => {
+        const firstUser = allUsers[0];
+        
+        let res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        const firstInventoryItem = res.body[0];
+        const inventoryLength = res.body.length;
+
+        res = await chai.request(server.app).delete(`/api/v1/users/${firstInventoryItem.ownerId}/books/${firstInventoryItem.bookId}`);
+        expect(res).to.have.status(200);
+        const deletedInventoryItem = res.body;
+        expect(deletedInventoryItem).to.not.be.undefined;
+        expect(deletedInventoryItem.id).to.equal(firstInventoryItem.id);
+
+        res = await chai.request(server.app).get(`/api/v1/users/${firstUser.id}/books`);
+        expect(res.body.length).to.equal(inventoryLength-1);
+
+    })
+
+
+});
